@@ -4,6 +4,7 @@ import cors from "cors";
 import helmet from "helmet";
 
 import { corsOption } from "./config/corsOprion";
+import { pool } from "./config/dbConnection";
 
 dotenv.config();
 
@@ -23,6 +24,10 @@ app.use(express.json()); // used to get data from JSON type
 
 app.use(helmet());
 
-app.listen(PORT, () =>
-  console.log(`Server is up and running on port : ${PORT}`)
-);
+pool.getConnection((err, conn) => {
+  if (!err?.code) {
+    app.listen(PORT, () =>
+      console.log(`Server is up and running on port : ${PORT}`)
+    );
+  }
+});

@@ -1,10 +1,10 @@
 import dotenv from "dotenv";
-import express, { Express } from "express";
+import express, { Express, Request, Response } from "express";
 import cors from "cors";
 import helmet from "helmet";
 
 import { corsOption } from "./config/corsOprion";
-import { pool } from "./config/dbConnection";
+import Database from "./config/dbConnection";
 
 dotenv.config();
 
@@ -24,7 +24,15 @@ app.use(express.json()); // used to get data from JSON type
 
 app.use(helmet());
 
-pool.getConnection((err, conn) => {
+app.get("/api", (_: Request, res: Response) =>
+  res.status(200).json({ "message": "Server is here" })
+);
+
+app.use("*", (_: Request, res: Response) =>
+  res.status(404).json({ "message": "Invalid request URL" })
+);
+
+Database.init().getConnection((err, conn) => {
   if (!err?.code) {
     app.listen(PORT, () =>
       console.log(`Server is up and running on port : ${PORT}`)

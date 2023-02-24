@@ -4,7 +4,7 @@ import cors from "cors";
 import helmet from "helmet";
 
 import { corsOption } from "./config/corsOprion";
-import Database from "./config/dbConnection";
+import authRoutes from "./routes/authRoutes";
 
 dotenv.config();
 
@@ -24,18 +24,16 @@ app.use(express.json()); // used to get data from JSON type
 
 app.use(helmet());
 
-app.get("/api", (_: Request, res: Response) =>
+app.get("/api/server", (_: Request, res: Response) =>
   res.status(200).json({ "message": "Server is here" })
 );
 
-app.use("*", (_: Request, res: Response) =>
-  res.status(404).json({ "message": "Invalid request URL" })
-);
+app.use("/api/v1/auth", authRoutes);
 
-Database.init().getConnection((err, conn) => {
-  if (!err?.code) {
-    app.listen(PORT, () =>
-      console.log(`Server is up and running on port : ${PORT}`)
-    );
-  }
+app.use("*", (_req: Request, res: Response) => {
+  res.status(404).json({ "message": "Invalid request URL" });
 });
+
+app.listen(PORT, () =>
+  console.log(`Server is up and running on port : ${PORT}`)
+);

@@ -1,8 +1,9 @@
-// get the client
-import mySql from "mysql2";
+// import {Pool} from "mysql2";
+
+import { Pool, createPool } from "mysql2";
 
 // Create the connection pool. The pool-specific settings are the defaults
-// export const pool = mySql.createPool({
+// export const pool = mysql.createPool({
 //   host: "localhost",
 //   user: "root",
 //   database: "orgs",
@@ -13,8 +14,8 @@ import mySql from "mysql2";
 // });
 
 export default class Database {
-  static init() {
-    return mySql.createPool({
+  static init(): Pool {
+    return createPool({
       host: "localhost",
       user: "root",
       database: "orgs",

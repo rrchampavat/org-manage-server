@@ -5,6 +5,7 @@ import helmet from "helmet";
 
 import { corsOption } from "./config/corsOprion";
 import authRoutes from "./routes/authRoutes";
+import adminRouter from "./routes/sadminRoute";
 
 dotenv.config();
 
@@ -29,6 +30,7 @@ app.get("/api/server", (_: Request, res: Response) =>
 );
 
 app.use("/api/v1/auth", authRoutes);
+app.use("/api/v1/", adminRouter);
 
 app.use("*", (_req: Request, res: Response) => {
   res.status(404).json({ "message": "Invalid request URL" });

@@ -1,40 +1,16 @@
 import bcrypt from "bcryptjs";
-
+import jwt from "jsonwebtoken";
 import { Request, Response } from "express";
+
 import Database from "../db/dbConnection";
 import { ISuperAdmin } from "../models/interfaces";
 
 export default class AuthController {
-  public adminLogin(req: Request, res: Response) {
+  public superAdminLogin(req: Request, res: Response) {
     try {
       const { email, password } = req.body;
 
       const connection = Database.init();
-      // const connection = Database.init().promise();
-
-      // const [rows] = await connection.query(
-      //   `SELECT * FROM super_admins WHERE sadmin_email =?`,
-      //   email
-      // );
-
-      // if (!rows?.length) {
-      //   return res
-      //     .status(403)
-      //     .json({ "message": "Email or password is incorrect !" });
-      // }
-
-      // const user = rows[0];
-
-      // if (user["sadmin_password"] !== password) {
-      //   return res
-      //     .status(403)
-      //     .json({ "message": "Email or password is incorrect !" });
-      // }
-
-      // return res.status(200).json({
-      //   "message": "Logged in successfully !",
-      //   "data": user,
-      // });
 
       connection.query<ISuperAdmin[]>(
         `SELECT * FROM super_admins WHERE sadmin_email =?`,
@@ -42,7 +18,7 @@ export default class AuthController {
         async (queryErr, queryRes) => {
           if (queryErr) {
             return res
-              .status(Number(queryErr))
+              .status(Number(queryErr.code) || 500)
               .json({ "message": queryErr.message });
           }
 
@@ -62,17 +38,31 @@ export default class AuthController {
               .json({ "message": "Email or password is incorrect !" });
           }
 
-          return res.status(200).json({
-            "message": "Logged in !",
-          });
+          const token = jwt.sign(
+            { "id": user?.sadmin_id },
+            process.env.SUPER_ADMIN_SECRET_KEY as string
+          );
+
+          return res
+            .cookie("jwt", token, {
+              httpOnly: true,
+              sameSite: "none",
+              secure: false,
+              maxAge: 24 * 60 * 60 * 1000,
+            })
+            .status(200)
+            .json({
+              "message": "Logged in !",
+              "token": token,
+            });
         }
       );
     } catch (error: any) {
-      res.status(Number(error.code)).json({ "message": error.message });
+      return res.status(Number(error.code)).json({ "message": error.message });
     }
   }
 
-  public adminRegister(req: Request, res: Response) {
+  public superAdminRegister(req: Request, res: Response) {
     try {
       const { name, email, password } = req.body;
 
@@ -106,10 +96,9 @@ export default class AuthController {
             `INSERT into super_admins (sadmin_name, sadmin_email, sadmin_password) VALUES (?,?,?)`,
             [name, email, hashedPassword],
             (queryErr) => {
-              console.log("===>  adminRegister  queryErr:", queryErr);
               if (queryErr) {
                 return res
-                  .status(Number(queryErr.code))
+                  .status(Number(queryErr.code) || 500)
                   .json({ "message": queryErr.message });
               }
 

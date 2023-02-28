@@ -3,7 +3,7 @@ import AuthController from "../controllers/AuthController";
 
 const router = Router();
 
-router.post("/admin/login", new AuthController().adminLogin);
-router.post("/admin/register", new AuthController().adminRegister);
+router.post("/admin/login", new AuthController().superAdminLogin);
+router.post("/admin/register", new AuthController().superAdminRegister);
 
 export default router;

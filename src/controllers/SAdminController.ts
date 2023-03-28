@@ -5,14 +5,14 @@ import { CustomRequest } from "../utils/interfaces";
 import { ISuperAdmin } from "../models/interfaces";
 
 export default class SAdminController {
-  public getSuperAdmin(req: CustomRequest, res: Response) {
+  public getLoggedSuperAdmin(req: CustomRequest, res: Response) {
     try {
       const sAdminID = req.id;
 
       const connection = Database.init();
 
       connection.query<ISuperAdmin[]>(
-        "SELECT * FROM super_admins WHERE sadmin_id",
+        "SELECT * FROM super_admins WHERE sadmin_id =?",
         sAdminID,
         (queryErr, queryRes) => {
           if (queryErr) {
@@ -38,6 +38,38 @@ export default class SAdminController {
             "message": "Super admin fetched successfully!",
             "data": super_admin,
           });
+        }
+      );
+    } catch (error: any) {
+      res.status(Number(error.code) || 500).json({ "message": error.message });
+    }
+  }
+
+  public getAllSuperAdmins(req: CustomRequest, res: Response) {
+    try {
+      const connection = Database.init();
+
+      connection.query<ISuperAdmin[]>(
+        "SELECT * from super_admins",
+        (queryErr, queryRes) => {
+          if (queryErr) {
+            return res
+              .status(Number(queryErr.code) || 500)
+              .json({ "message": queryErr.message });
+          }
+
+          const super_admins = queryRes?.map((sadmin: ISuperAdmin) => ({
+            "id": sadmin.sadmin_id,
+            "name": sadmin.sadmin_name,
+            "email": sadmin.sadmin_email,
+          }));
+
+          return res
+            .status(200)
+            .json({
+              "message": "Super admins fetched successfully!",
+              "data": super_admins,
+            });
         }
       );
     } catch (error: any) {

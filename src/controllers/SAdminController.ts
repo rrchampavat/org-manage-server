@@ -35,7 +35,7 @@ export default class SAdminController {
           };
 
           return res.status(200).json({
-            "message": "Super admin fetched successfully!",
+            "message": "Super admin successfully!",
             "data": super_admin,
           });
         }
@@ -64,12 +64,10 @@ export default class SAdminController {
             "email": sadmin.sadmin_email,
           }));
 
-          return res
-            .status(200)
-            .json({
-              "message": "Super admins fetched successfully!",
-              "data": super_admins,
-            });
+          return res.status(200).json({
+            "message": "Super admins fetched successfully!",
+            "data": super_admins,
+          });
         }
       );
     } catch (error: any) {

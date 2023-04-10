@@ -5,23 +5,21 @@ import { VerifySameUser } from "../middlewares/VerifySameUser";
 
 const router = Router();
 
+const verifySuperAdminOBJ = new SAdminController();
+
 router
-  .get(
-    "/super-admin/:id?",
-    VerifySuperAdmin,
-    new SAdminController().getSuperAdmin
-  )
+  .get("/super-admin/:id?", VerifySuperAdmin, verifySuperAdminOBJ.getSuperAdmin)
   .put(
     "/super-admin",
     VerifySuperAdmin,
     VerifySameUser,
-    new SAdminController().updateSuperAdmin
+    verifySuperAdminOBJ.updateSuperAdmin
   );
 
 router.get(
   "/super-admins",
   VerifySuperAdmin,
-  new SAdminController().getAllSuperAdmins
+  verifySuperAdminOBJ.getAllSuperAdmins
 );
 
 export default router;

@@ -45,18 +45,20 @@ export default class AuthController {
             { expiresIn: superAdminTokenMaxAge }
           );
 
-          return res
-            .cookie("jwt", token, {
-              httpOnly: true,
-              sameSite: "none",
-              secure: false,
-              maxAge: superAdminTokenMaxAge,
-            })
-            .status(200)
-            .json({
-              "message": "Logged in !",
-              "token": token,
-            });
+          return (
+            res
+              // .cookie("jwt", token, {
+              //   httpOnly: true,
+              //   sameSite: "none",
+              //   secure: false,
+              //   maxAge: superAdminTokenMaxAge * 1000, // in miliseconds
+              // })
+              .status(200)
+              .json({
+                "message": "Logged in !",
+                "token": token,
+              })
+          );
         }
       );
     } catch (error: any) {
@@ -111,6 +113,16 @@ export default class AuthController {
           );
         }
       );
+    } catch (error: any) {
+      res.status(Number(error.code)).json({ "message": error.message });
+    }
+  }
+
+  public logout(_req: Request, res: Response) {
+    try {
+      res.clearCookie("jwt");
+
+      return res.status(200).json({ "messasge": "Logged out successfully !" });
     } catch (error: any) {
       res.status(Number(error.code)).json({ "message": error.message });
     }

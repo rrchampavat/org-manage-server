@@ -4,6 +4,7 @@ import { Request, Response } from "express";
 
 import Database from "../db/dbConnection";
 import { ISuperAdmin } from "../models/interfaces";
+import { superAdminTokenMaxAge } from "../utils/constant";
 
 export default class AuthController {
   public superAdminLogin(req: Request, res: Response) {
@@ -40,7 +41,8 @@ export default class AuthController {
 
           const token = jwt.sign(
             { "id": user?.sadmin_id },
-            process.env.SUPER_ADMIN_SECRET_KEY as string
+            process.env.SUPER_ADMIN_SECRET_KEY!,
+            { expiresIn: superAdminTokenMaxAge }
           );
 
           return res
@@ -48,7 +50,7 @@ export default class AuthController {
               httpOnly: true,
               sameSite: "none",
               secure: false,
-              maxAge: 24 * 60 * 60 * 1000,
+              maxAge: superAdminTokenMaxAge,
             })
             .status(200)
             .json({

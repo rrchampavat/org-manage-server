@@ -1,13 +1,8 @@
 import { NextFunction, Response } from "express";
-import jwt, { JwtPayload } from "jsonwebtoken";
-import { CustomRequest } from "../utils/interfaces";
+import jwt from "jsonwebtoken";
+import { CustomRequest, DecodedToken } from "../utils/interfaces";
 import Database from "../db/dbConnection";
 import { ISuperAdmin } from "../models/interfaces";
-
-interface DecodedToken extends JwtPayload {
-  "id": number;
-  "iat": number;
-}
 
 export const VerifySuperAdmin = (
   req: CustomRequest,

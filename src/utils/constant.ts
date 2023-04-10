@@ -1,1 +1,1 @@
-export const superAdminTokenMaxAge: number = 60 * 1000;
+export const superAdminTokenMaxAge: number = 10 * 60; // in seconds

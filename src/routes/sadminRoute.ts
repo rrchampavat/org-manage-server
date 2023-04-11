@@ -1,24 +1,32 @@
 import { Router } from "express";
-import { VerifySuperAdmin } from "../middlewares/JWTVerify";
+import { VerifyJWTToken } from "../middlewares/JWTVerify";
 import SAdminController from "../controllers/SAdminController";
 import { VerifySameUser } from "../middlewares/VerifySameUser";
+import { isSuperAdmin } from "../middlewares/VerifyRole";
 
 const router = Router();
 
 const verifySuperAdminOBJ = new SAdminController();
 
 router
-  .get("/super-admin/:id?", VerifySuperAdmin, verifySuperAdminOBJ.getSuperAdmin)
+  .get(
+    "/super-admin/:id?",
+    VerifyJWTToken,
+    isSuperAdmin,
+    verifySuperAdminOBJ.getSuperAdmin
+  )
   .put(
     "/super-admin",
-    VerifySuperAdmin,
+    VerifyJWTToken,
+    isSuperAdmin,
     VerifySameUser,
     verifySuperAdminOBJ.updateSuperAdmin
   );
 
 router.get(
   "/super-admins",
-  VerifySuperAdmin,
+  isSuperAdmin,
+  VerifyJWTToken,
   verifySuperAdminOBJ.getAllSuperAdmins
 );
 

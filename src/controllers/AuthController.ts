@@ -62,7 +62,9 @@ export default class AuthController {
         }
       );
     } catch (error: any) {
-      return res.status(Number(error.code)).json({ "message": error.message });
+      return res
+        .status(Number(error.code) || 500)
+        .send({ "message": error.message });
     }
   }
 
@@ -114,7 +116,9 @@ export default class AuthController {
         }
       );
     } catch (error: any) {
-      res.status(Number(error.code)).json({ "message": error.message });
+      return res
+        .status(Number(error.code) || 500)
+        .send({ "message": error.message });
     }
   }
 
@@ -122,9 +126,11 @@ export default class AuthController {
     try {
       res.clearCookie("jwt");
 
-      return res.status(200).json({ "messasge": "Logged out successfully !" });
+      return res.status(200).json({ "messasge": "Logged out successfully!" });
     } catch (error: any) {
-      res.status(Number(error.code)).json({ "message": error.message });
+      return res
+        .status(Number(error.code) || 500)
+        .send({ "message": error.message });
     }
   }
 }

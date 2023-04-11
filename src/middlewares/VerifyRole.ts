@@ -4,7 +4,7 @@ import { CustomRequest } from "../utils/interfaces";
 import Database from "../db/dbConnection";
 import { ISuperAdmin } from "../models/interfaces";
 
-export const VerifyJWTToken = (
+export const isSuperAdmin = (
   req: CustomRequest,
   res: Response,
   next: NextFunction
@@ -19,27 +19,25 @@ export const VerifyJWTToken = (
       process.env.SUPER_ADMIN_SECRET_KEY!
     ) as JwtPayload;
 
-    req.id = decodedToken.id;
-
     const connection = Database.init();
 
     connection.query<ISuperAdmin[]>(
-      `SELECT * FROM super_admins WHERE sadmin_id =?`,
+      "SELECT * FROM super_admins WHERE sadmin_id=?",
       decodedToken.id,
-      async (queryErr, queryRes) => {
+      (queryErr, queryRes) => {
         if (queryErr) {
           return res
             .status(Number(queryErr.code) || 500)
             .json({ "message": queryErr.message });
         }
 
-        if (!queryRes.length) {
-          return res.status(404).json({ "message": "User not found!" });
+        if (!queryRes?.length) {
+          return res.status(403).json({ "message": "Forbidden request!" });
         }
+
+        return next();
       }
     );
-
-    return next();
   } catch (error: any) {
     return res
       .status(Number(error.code) || 500)

@@ -33,7 +33,7 @@ app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/", superAdminRouter);
 
 app.use("*", (_req: Request, res: Response) => {
-  res.status(404).json({ "message": "Invalid request URL!" });
+  res.status(400).json({ "message": "Invalid request URL!" });
 });
 
 app.listen(PORT, () =>

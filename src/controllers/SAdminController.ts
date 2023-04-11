@@ -12,33 +12,28 @@ export default class SAdminController {
 
       const connection = Database.init();
 
-      connection.query<ISuperAdmin[]>(
-        "SELECT * FROM super_admins WHERE sadmin_id =?",
-        paramID ?? sAdminID,
-        (queryErr, queryRes) => {
-          if (queryErr) {
-            return res
-              .status(Number(queryErr.code) || 500)
-              .json({ "message": queryErr.message });
-          }
+      const promiseConnection = connection.promise();
 
-          if (!queryRes.length) {
-            return res.status(400).json({ "message": "User does not exist!" });
-          }
+      const sql = "SELECT * FROM super_admins WHERE sadmin_id =?";
+      const values = [paramID ?? sAdminID];
 
-          const user = queryRes[0];
+      const [rows] = await promiseConnection.query(sql, values);
 
-          const super_admin = {
-            "name": user.sadmin_name,
-            "email": user.sadmin_email,
-          };
+      if (!rows.length) {
+        return res.status(400).json({ "message": "User does not exist!" });
+      }
 
-          return res.status(200).json({
-            "message": "Super admin fetched successfully!",
-            "data": super_admin,
-          });
-        }
-      );
+      const user = rows[0];
+
+      const super_admin = {
+        "name": user.sadmin_name,
+        "email": user.sadmin_email,
+      };
+
+      return res.status(200).json({
+        "message": "Super admin fetched successfully!",
+        "data": super_admin,
+      });
     } catch (error: any) {
       return res
         .status(Number(error.code) || 500)
@@ -46,31 +41,26 @@ export default class SAdminController {
     }
   }
 
-  public getAllSuperAdmins(_req: CustomRequest, res: Response) {
+  public async getAllSuperAdmins(_req: CustomRequest, res: Response) {
     try {
       const connection = Database.init();
 
-      connection.query<ISuperAdmin[]>(
-        "SELECT * from super_admins",
-        (queryErr, queryRes) => {
-          if (queryErr) {
-            return res
-              .status(Number(queryErr.code) || 500)
-              .json({ "message": queryErr.message });
-          }
+      const promiseConnection = connection.promise();
 
-          const super_admins = queryRes?.map((sadmin: ISuperAdmin) => ({
-            "id": sadmin.sadmin_id,
-            "name": sadmin.sadmin_name,
-            "email": sadmin.sadmin_email,
-          }));
+      const sql = "SELECT * from super_admins";
 
-          return res.status(200).json({
-            "message": "Super admins fetched successfully!",
-            "data": super_admins,
-          });
-        }
-      );
+      const [rows] = await promiseConnection.query(sql);
+
+      const super_admins = rows?.map((sadmin: ISuperAdmin) => ({
+        "id": sadmin.sadmin_id,
+        "name": sadmin.sadmin_name,
+        "email": sadmin.sadmin_email,
+      }));
+
+      return res.status(200).json({
+        "message": "Super admins fetched successfully!",
+        "data": super_admins,
+      });
     } catch (error: any) {
       return res
         .status(Number(error.code) || 500)
@@ -78,72 +68,47 @@ export default class SAdminController {
     }
   }
 
-  public updateSuperAdmin(req: CustomRequest, res: Response) {
+  public async updateSuperAdmin(req: CustomRequest, res: Response) {
     try {
       const { name: updatedName } = req.body;
       const sAdminID = req.id;
 
       const connection = Database.init();
 
-      connection.query<ISuperAdmin[]>(
-        "SELECT * FROM super_admins WHERE sadmin_id =?",
-        sAdminID,
-        (queryErr, queryRes) => {
-          if (queryErr) {
-            return res
-              .status(Number(queryErr.code) || 500)
-              .json({ "message": queryErr.message });
-          }
+      const promiseConnection = connection.promise();
 
-          if (!queryRes.length) {
-            return res
-              .status(400)
-              .json({ "message": "User does not exists !" });
-          }
+      const getSQL = "SELECT * FROM super_admins WHERE sadmin_id =?";
+      const getValues = [sAdminID];
 
-          connection.query<ISuperAdmin[]>(
-            `UPDATE super_admins SET sadmin_name =? WHERE sadmin_id =?`,
-            [updatedName, sAdminID],
-            (queryErr) => {
-              if (queryErr) {
-                return res
-                  .status(Number(queryErr.code) || 500)
-                  .json({ "message": queryErr.message });
-              }
+      const [getRows] = await promiseConnection.query(getSQL, getValues);
 
-              connection.query<ISuperAdmin[]>(
-                "SELECT * FROM super_admins WHERE sadmin_id =?",
-                sAdminID,
-                (queryErr, queryRes) => {
-                  if (queryErr) {
-                    return res
-                      .status(Number(queryErr.code) || 500)
-                      .json({ "message": queryErr.message });
-                  }
+      if (!getRows.length) {
+        return res.status(400).json({ "message": "User does not exists !" });
+      }
 
-                  if (!queryRes.length) {
-                    return res
-                      .status(400)
-                      .json({ "message": "User does not exists !" });
-                  }
+      const updateQuery =
+        "UPDATE super_admins SET sadmin_name =? WHERE sadmin_id =?";
+      const updateValues = [updatedName, sAdminID];
 
-                  const user = queryRes[0];
+      await promiseConnection.query(updateQuery, updateValues);
 
-                  const super_admin = {
-                    "name": user.sadmin_name,
-                    "email": user.sadmin_email,
-                  };
+      const [getUpdatedRows] = await promiseConnection.query(getSQL, getValues);
 
-                  return res.status(200).json({
-                    "message": "Super admin updated successfully!",
-                    "data": super_admin,
-                  });
-                }
-              );
-            }
-          );
-        }
-      );
+      if (!getUpdatedRows.length) {
+        return res.status(400).json({ "message": "User does not exists !" });
+      }
+
+      const user = getUpdatedRows[0];
+
+      const super_admin = {
+        "name": user.sadmin_name,
+        "email": user.sadmin_email,
+      };
+
+      return res.status(201).json({
+        "message": "Super admin updated successfully!",
+        "data": super_admin,
+      });
     } catch (error: any) {
       return res
         .status(Number(error.code) || 500)

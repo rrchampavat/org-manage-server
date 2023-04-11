@@ -26,14 +26,14 @@ app.use(express.json()); // used to get data from JSON type
 app.use(helmet());
 
 app.get("/api/server", (_: Request, res: Response) =>
-  res.status(200).json({ "message": "Server is here" })
+  res.status(200).json({ "message": "Server is here!" })
 );
 
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/", superAdminRouter);
 
 app.use("*", (_req: Request, res: Response) => {
-  res.status(404).json({ "message": "Invalid request URL" });
+  res.status(404).json({ "message": "Invalid request URL!" });
 });
 
 app.listen(PORT, () =>

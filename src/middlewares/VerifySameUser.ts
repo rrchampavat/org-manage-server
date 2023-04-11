@@ -20,11 +20,13 @@ export const VerifySameUser = (
     ) as JwtPayload;
 
     if (decodedToken.id !== requestUserID) {
-      return res.status(403).json({ "message": "Unauthorized request" });
+      return res.status(403).json({ "message": "Forbidden request!" });
     }
 
     return next();
   } catch (error: any) {
-    return res.status(401).send({ "message": error.message });
+    return res
+      .status(Number(error.code) || 500)
+      .send({ "message": error.message });
   }
 };

@@ -5,7 +5,7 @@ import { CustomRequest } from "../utils/interfaces";
 import { ISuperAdmin } from "../models/interfaces";
 
 export default class SAdminController {
-  public getSuperAdmin(req: CustomRequest, res: Response) {
+  public async getSuperAdmin(req: CustomRequest, res: Response) {
     try {
       const sAdminID = req.id;
       const paramID = req.params.id;
@@ -23,7 +23,7 @@ export default class SAdminController {
           }
 
           if (!queryRes.length) {
-            return res.status(400).json({ "message": "User does not exist !" });
+            return res.status(400).json({ "message": "User does not exist!" });
           }
 
           const user = queryRes[0];
@@ -40,7 +40,9 @@ export default class SAdminController {
         }
       );
     } catch (error: any) {
-      res.status(Number(error.code) || 500).json({ "message": error.message });
+      return res
+        .status(Number(error.code) || 500)
+        .send({ "message": error.message });
     }
   }
 
@@ -70,7 +72,9 @@ export default class SAdminController {
         }
       );
     } catch (error: any) {
-      res.status(Number(error.code) || 500).json({ "message": error.message });
+      return res
+        .status(Number(error.code) || 500)
+        .send({ "message": error.message });
     }
   }
 
@@ -98,7 +102,8 @@ export default class SAdminController {
           }
 
           connection.query<ISuperAdmin[]>(
-            `UPDATE super_admins SET sadmin_name = '${updatedName}' WHERE sadmin_id = ${sAdminID}`,
+            `UPDATE super_admins SET sadmin_name =? WHERE sadmin_id =?`,
+            [updatedName, sAdminID],
             (queryErr) => {
               if (queryErr) {
                 return res
@@ -140,7 +145,9 @@ export default class SAdminController {
         }
       );
     } catch (error: any) {
-      res.status(Number(error.code)).json({ "message": error.message });
+      return res
+        .status(Number(error.code) || 500)
+        .send({ "message": error.message });
     }
   }
 }

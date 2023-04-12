@@ -1,4 +1,4 @@
-export const superAdminTokenMaxAge: number = 8 * 60 * 60; // in seconds
+export const superAdminTokenMaxAge: number = 60 * 60; // in seconds
 
 interface IRoles {
   [key: string]: number;

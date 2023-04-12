@@ -17,7 +17,10 @@ export default class AuthController {
 
       const sql = "SELECT * FROM super_admins WHERE sadmin_email =?";
 
-      const [rows] = await promiseConnection.query(sql, email);
+      const [rows]: [rows: ISuperAdmin[]] = await promiseConnection.query(
+        sql,
+        email
+      );
 
       const user = rows[0];
 
@@ -45,14 +48,14 @@ export default class AuthController {
           // })
           .status(200)
           .json({
-            "message": "Logged in !",
+            "message": "Logged in successfully!",
             "token": token,
           })
       );
     } catch (error: any) {
       return res
         .status(Number(error.code) || 500)
-        .send({ "message": error.message });
+        .json({ "message": error.message });
     }
   }
 
@@ -79,7 +82,7 @@ export default class AuthController {
       );
 
       if (getRows.length) {
-        return res.status(400).json({ "message": "Email is already in use !" });
+        return res.status(400).json({ "message": "Email is already in use!" });
       }
 
       const hashedPassword = await bcrypt.hash(password, 10);
@@ -91,12 +94,12 @@ export default class AuthController {
       await promiseConnection.query(insertSQL, insertValues);
 
       return res.status(201).json({
-        "message": "Admin registered succesfully !",
+        "message": "Admin registered succesfully!",
       });
     } catch (error: any) {
       return res
         .status(Number(error.code) || 500)
-        .send({ "message": error.message });
+        .json({ "message": error.message });
     }
   }
 
@@ -108,7 +111,7 @@ export default class AuthController {
     } catch (error: any) {
       return res
         .status(Number(error.code) || 500)
-        .send({ "message": error.message });
+        .json({ "message": error.message });
     }
   }
 }

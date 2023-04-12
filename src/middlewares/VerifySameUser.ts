@@ -27,6 +27,6 @@ export const VerifySameUser = (
   } catch (error: any) {
     return res
       .status(Number(error.code) || 500)
-      .send({ "message": error.message });
+      .json({ "message": error.message });
   }
 };

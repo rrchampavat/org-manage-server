@@ -3,6 +3,8 @@ import { VerifyJWTToken } from "../middlewares/JWTVerify";
 import SAdminController from "../controllers/SAdminController";
 import { VerifySameUser } from "../middlewares/VerifySameUser";
 import { isSuperAdmin } from "../middlewares/VerifyRole";
+import { validate } from "../middlewares/Validation";
+import { getSuperAdminSchema, idValidation } from "../utils/validationSchemas";
 
 const router = Router();
 
@@ -13,6 +15,7 @@ router
     "/super-admin/:id?",
     VerifyJWTToken,
     isSuperAdmin,
+    validate(getSuperAdminSchema),
     verifySuperAdminOBJ.getSuperAdmin
   )
   .put(
@@ -20,13 +23,15 @@ router
     VerifyJWTToken,
     isSuperAdmin,
     VerifySameUser,
+    validate(getSuperAdminSchema),
     verifySuperAdminOBJ.updateSuperAdmin
   );
 
 router.get(
   "/super-admins",
-  isSuperAdmin,
   VerifyJWTToken,
+  isSuperAdmin,
+  validate(getSuperAdminSchema),
   verifySuperAdminOBJ.getAllSuperAdmins
 );
 

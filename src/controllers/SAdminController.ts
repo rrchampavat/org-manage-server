@@ -17,7 +17,10 @@ export default class SAdminController {
       const sql = "SELECT * FROM super_admins WHERE sadmin_id =?";
       const values = [paramID ?? sAdminID];
 
-      const [rows] = await promiseConnection.query(sql, values);
+      const [rows]: [rows: ISuperAdmin[]] = await promiseConnection.query(
+        sql,
+        values
+      );
 
       if (!rows.length) {
         return res.status(400).json({ "message": "User does not exist!" });
@@ -31,13 +34,13 @@ export default class SAdminController {
       };
 
       return res.status(200).json({
-        "message": "Super admin fetched successfully!",
+        "message": "User fetched successfully!",
         "data": super_admin,
       });
     } catch (error: any) {
       return res
         .status(Number(error.code) || 500)
-        .send({ "message": error.message });
+        .json({ "message": error.message });
     }
   }
 
@@ -49,7 +52,7 @@ export default class SAdminController {
 
       const sql = "SELECT * from super_admins";
 
-      const [rows] = await promiseConnection.query(sql);
+      const [rows]: [rows: ISuperAdmin[]] = await promiseConnection.query(sql);
 
       const super_admins = rows?.map((sadmin: ISuperAdmin) => ({
         "id": sadmin.sadmin_id,
@@ -58,13 +61,13 @@ export default class SAdminController {
       }));
 
       return res.status(200).json({
-        "message": "Super admins fetched successfully!",
+        "message": "Users fetched successfully!",
         "data": super_admins,
       });
     } catch (error: any) {
       return res
         .status(Number(error.code) || 500)
-        .send({ "message": error.message });
+        .json({ "message": error.message });
     }
   }
 
@@ -80,10 +83,13 @@ export default class SAdminController {
       const getSQL = "SELECT * FROM super_admins WHERE sadmin_id =?";
       const getValues = [sAdminID];
 
-      const [getRows] = await promiseConnection.query(getSQL, getValues);
+      const [getRows]: [getRows: ISuperAdmin[]] = await promiseConnection.query(
+        getSQL,
+        getValues
+      );
 
       if (!getRows.length) {
-        return res.status(400).json({ "message": "User does not exists !" });
+        return res.status(400).json({ "message": "User does not exists!" });
       }
 
       const updateQuery =
@@ -92,10 +98,11 @@ export default class SAdminController {
 
       await promiseConnection.query(updateQuery, updateValues);
 
-      const [getUpdatedRows] = await promiseConnection.query(getSQL, getValues);
+      const [getUpdatedRows]: [getUpdatedRows: ISuperAdmin[]] =
+        await promiseConnection.query(getSQL, getValues);
 
       if (!getUpdatedRows.length) {
-        return res.status(400).json({ "message": "User does not exists !" });
+        return res.status(404).json({ "message": "User does not exists!" });
       }
 
       const user = getUpdatedRows[0];
@@ -106,13 +113,13 @@ export default class SAdminController {
       };
 
       return res.status(201).json({
-        "message": "Super admin updated successfully!",
+        "message": "User updated successfully!",
         "data": super_admin,
       });
     } catch (error: any) {
       return res
         .status(Number(error.code) || 500)
-        .send({ "message": error.message });
+        .json({ "message": error.message });
     }
   }
 }

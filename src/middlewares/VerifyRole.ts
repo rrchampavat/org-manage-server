@@ -10,7 +10,7 @@ export const isSuperAdmin = (
   next: NextFunction
 ) => {
   try {
-    const token = req.header("Authorization")?.split(" ")[1];
+    const token = req.header("Authorization")?.split(" ")?.[1];
 
     if (!token) throw new Error("Token is missing!");
 
@@ -41,6 +41,6 @@ export const isSuperAdmin = (
   } catch (error: any) {
     return res
       .status(Number(error.code) || 500)
-      .send({ "message": error.message });
+      .json({ "message": error.message });
   }
 };

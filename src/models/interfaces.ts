@@ -1,6 +1,6 @@
 import { RowDataPacket } from "mysql2";
 
-export interface IOrganization {
+export interface IOrganization extends RowDataPacket {
   org_id: string | number | null;
   org_name: string;
   org_country: string;

@@ -4,6 +4,8 @@ import Database from "../db/dbConnection";
 import { CustomRequest } from "../utils/interfaces";
 import { ISuperAdmin } from "../models/interfaces";
 
+const tableName = "super_admins";
+
 export default class SAdminController {
   public async getSuperAdmin(req: CustomRequest, res: Response) {
     try {
@@ -14,7 +16,7 @@ export default class SAdminController {
 
       const promiseConnection = connection.promise();
 
-      const sql = "SELECT * FROM super_admins WHERE sadmin_id =?";
+      const sql = `SELECT * FROM ${tableName} WHERE sadmin_id =?`;
       const values = [paramID ?? sAdminID];
 
       const [rows]: [rows: ISuperAdmin[]] = await promiseConnection.query(
@@ -50,7 +52,7 @@ export default class SAdminController {
 
       const promiseConnection = connection.promise();
 
-      const sql = "SELECT * from super_admins";
+      const sql = `SELECT * from ${tableName}`;
 
       const [rows]: [rows: ISuperAdmin[]] = await promiseConnection.query(sql);
 
@@ -80,7 +82,7 @@ export default class SAdminController {
 
       const promiseConnection = connection.promise();
 
-      const getSQL = "SELECT * FROM super_admins WHERE sadmin_id =?";
+      const getSQL = `SELECT * FROM ${tableName} WHERE sadmin_id =?`;
       const getValues = [sAdminID];
 
       const [getRows]: [getRows: ISuperAdmin[]] = await promiseConnection.query(
@@ -92,8 +94,7 @@ export default class SAdminController {
         return res.status(400).json({ "message": "User does not exists!" });
       }
 
-      const updateQuery =
-        "UPDATE super_admins SET sadmin_name =? WHERE sadmin_id =?";
+      const updateQuery = `UPDATE ${tableName} SET sadmin_name =? WHERE sadmin_id =?`;
       const updateValues = [updatedName, sAdminID];
 
       await promiseConnection.query(updateQuery, updateValues);

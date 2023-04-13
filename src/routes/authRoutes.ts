@@ -15,11 +15,13 @@ router.post(
   validate(superAdminLoginSchema),
   authControllerOBJ.superAdminLogin
 );
+
 router.post(
   "/admin/register",
   validate(superAdminRegisterSchema),
   authControllerOBJ.superAdminRegister
 );
+
 router.post("/admin/logout", authControllerOBJ.logout);
 
 export default router;

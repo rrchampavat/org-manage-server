@@ -6,6 +6,8 @@ import Database from "../db/dbConnection";
 import { ISuperAdmin } from "../models/interfaces";
 import { superAdminTokenMaxAge } from "../utils/constant";
 
+const tableName = "super_admins";
+
 export default class AuthController {
   public async superAdminLogin(req: Request, res: Response) {
     try {
@@ -15,7 +17,7 @@ export default class AuthController {
 
       const promiseConnection = connection.promise();
 
-      const sql = "SELECT * FROM super_admins WHERE sadmin_email =?";
+      const sql = `SELECT * FROM ${tableName} WHERE sadmin_email =?`;
 
       const [rows]: [rows: ISuperAdmin[]] = await promiseConnection.query(
         sql,
@@ -73,7 +75,7 @@ export default class AuthController {
 
       const promiseConnection = connection.promise();
 
-      const getSQL = "SELECT * FROM super_admins WHERE sadmin_email =?";
+      const getSQL = `SELECT * FROM ${tableName} WHERE sadmin_email =?`;
       const getValues = [email];
 
       const [getRows]: [getRows: ISuperAdmin[]] = await promiseConnection.query(
@@ -87,8 +89,7 @@ export default class AuthController {
 
       const hashedPassword = await bcrypt.hash(password, 10);
 
-      const insertSQL =
-        "INSERT into super_admins (sadmin_name, sadmin_email, sadmin_password) VALUES (?,?,?)";
+      const insertSQL = `INSERT INTO ${tableName} (sadmin_name, sadmin_email, sadmin_password) VALUES (?,?,?)`;
       const insertValues = [name, email, hashedPassword];
 
       await promiseConnection.query(insertSQL, insertValues);

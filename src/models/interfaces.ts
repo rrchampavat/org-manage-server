@@ -17,3 +17,8 @@ export interface ISuperAdmin extends RowDataPacket {
   sadmin_email: string;
   sadmin_password: string;
 }
+
+export interface IRole extends RowDataPacket {
+  role_id: string | number | null;
+  role_name: string;
+}

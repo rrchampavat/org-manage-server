@@ -2,7 +2,7 @@ import { Router } from "express";
 import { createOrg, getOrg, getOrgs } from "../controllers/orgController";
 import { VerifyJWTToken } from "../middlewares/JWTVerify";
 import { isSuperAdmin } from "../middlewares/VerifyRole";
-import { validate } from "../middlewares/Validation";
+import validate from "../middlewares/Validation";
 import { createOrgSchema, paramsIDSchema } from "../utils/validationSchemas";
 
 const router = Router();

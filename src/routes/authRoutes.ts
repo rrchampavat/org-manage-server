@@ -1,6 +1,6 @@
 import { Router } from "express";
 import AuthController from "../controllers/AuthController";
-import { validate } from "../middlewares/Validation";
+import validate from "../middlewares/Validation";
 import {
   superAdminLoginSchema,
   superAdminRegisterSchema,

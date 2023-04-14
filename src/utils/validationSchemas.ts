@@ -8,11 +8,13 @@ export const idValidation = z.object({
 });
 
 export const paramsIDSchema = z.object({
-  params: z.object({
-    id: z
-      .string({ required_error: "Param id missing!" })
-      .nonempty({ "message": "Param id missing!" }),
-  }),
+  params: z
+    .object({
+      id: z
+        .string({ required_error: "Param id missing!" })
+        .nonempty({ "message": "Param id missing!" }),
+    })
+    .strict(),
 });
 
 export const superAdminJwtTokenSchema = z.object({
@@ -44,21 +46,23 @@ export const superAdminLoginSchema = z.object({
 });
 
 export const superAdminRegisterSchema = z.object({
-  body: z.object({
-    name: z
-      .string({ required_error: "Name is required!" })
-      .nonempty({ "message": "Name is required!" }),
-    email: z
-      .string({ required_error: "Email is required!" })
-      .email("Please provide valid email!")
-      .nonempty({ "message": "Email is required!" }),
-    password: z
-      .string({ required_error: "Password is required!" })
-      .regex(
-        passwordRegex,
-        "Password must contain minimum eight characters, at least one uppercase letter, one lowercase letter, one number and one special character!"
-      ),
-  }),
+  body: z
+    .object({
+      name: z
+        .string({ required_error: "Name is required!" })
+        .nonempty({ "message": "Name is required!" }),
+      email: z
+        .string({ required_error: "Email is required!" })
+        .email("Please provide valid email!")
+        .nonempty({ "message": "Email is required!" }),
+      password: z
+        .string({ required_error: "Password is required!" })
+        .regex(
+          passwordRegex,
+          "Password must contain minimum eight characters, at least one uppercase letter, one lowercase letter, one number and one special character!"
+        ),
+    })
+    .strict(),
 });
 
 export const getSuperAdminSchema = z
@@ -100,8 +104,33 @@ export const createOrgSchema = z
           .email("Please provide valid secondary email!")
           .nonempty({ "message": "Secondary email is required!" }),
       })
+      .strict()
       .refine((data) => data.prmEmail !== data.scdEmail, {
         "message": "Primary and secondary emails must be different",
       }),
   })
   .merge(superAdminJwtTokenSchema);
+
+export const createRoleSchema = z.object({
+  body: z
+    .object({
+      name: z.string({
+        required_error: "Role name is required!",
+        invalid_type_error: "Role name must be string!",
+      }),
+    })
+    .strict(),
+});
+
+export const updateRoleSchema = z
+  .object({
+    body: z.object({
+      name: z
+        .string({
+          required_error: "Name is required!",
+          invalid_type_error: "Name must be string!",
+        })
+        .nonempty({ "message": "Name is required!" }),
+    }),
+  })
+  .merge(paramsIDSchema);

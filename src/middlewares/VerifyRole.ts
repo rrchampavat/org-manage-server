@@ -1,10 +1,13 @@
 import { NextFunction, Response } from "express";
 import jwt, { JwtPayload } from "jsonwebtoken";
+
 import { CustomRequest } from "../utils/interfaces";
 import Database from "../db/dbConnection";
 import { ISuperAdmin } from "../models/interfaces";
 
-export const isSuperAdmin = (
+const tableName = "super_admins";
+
+export const isSuperAdmin = async (
   req: CustomRequest,
   res: Response,
   next: NextFunction
@@ -20,24 +23,21 @@ export const isSuperAdmin = (
     ) as JwtPayload;
 
     const connection = Database.init();
+    const promiseConnection = connection.promise();
 
-    connection.query<ISuperAdmin[]>(
-      "SELECT * FROM super_admins WHERE sadmin_id=?",
-      decodedToken.id,
-      (queryErr, queryRes) => {
-        if (queryErr) {
-          return res
-            .status(Number(queryErr.code) || 500)
-            .json({ "message": queryErr.message });
-        }
+    const sql = `SELECT * FROM ${tableName} WHERE sadmin_id =?`;
+    const values = [decodedToken.id];
 
-        if (!queryRes?.length) {
-          return res.status(403).json({ "message": "Forbidden request!" });
-        }
-
-        return next();
-      }
+    const [rows]: [rows: ISuperAdmin[]] = await promiseConnection.query(
+      sql,
+      values
     );
+
+    if (!rows?.length) {
+      return res.status(403).json({ "message": "Forbidden request!" });
+    }
+
+    return next();
   } catch (error: any) {
     return res
       .status(Number(error.code) || 500)

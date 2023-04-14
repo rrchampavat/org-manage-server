@@ -1,4 +1,5 @@
 import { Router } from "express";
+
 import { VerifyJWTToken } from "../middlewares/JWTVerify";
 import SAdminController from "../controllers/SAdminController";
 import { VerifySameUser } from "../middlewares/VerifySameUser";

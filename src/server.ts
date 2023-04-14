@@ -7,6 +7,7 @@ import { corsOption } from "./config/corsOprion";
 import authRoutes from "./routes/authRoutes";
 import superAdminRouter from "./routes/superAdminRoute";
 import orgRouter from "./routes/organizationRoutes";
+import roleRouter from "./routes/roleRoutes";
 
 dotenv.config();
 
@@ -31,7 +32,7 @@ app.get("/api/server", (_: Request, res: Response) =>
 );
 
 app.use("/api/v1/auth", authRoutes);
-app.use("/api/v1/", superAdminRouter, orgRouter);
+app.use("/api/v1/", superAdminRouter, orgRouter, roleRouter);
 // app.use("/api/v1/", orgRouter);
 
 app.use("*", (_req: Request, res: Response) => {

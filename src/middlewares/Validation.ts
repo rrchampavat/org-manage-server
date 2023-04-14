@@ -4,7 +4,7 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 
 import { CustomRequest } from "../utils/interfaces";
 
-export const validate =
+const validate =
   (schema: AnyZodObject) =>
   async (req: CustomRequest, res: Response, next: NextFunction) => {
     try {
@@ -37,3 +37,5 @@ export const validate =
         .json({ "message": errorOBJ?.[0]?.message || error.message });
     }
   };
+
+export default validate;

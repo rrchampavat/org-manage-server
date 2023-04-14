@@ -9,10 +9,10 @@ import { createOrgSchema, paramsIDSchema } from "../utils/validationSchemas";
 const router = Router();
 
 router
-  .route("/organization/:id?")
+  .route("/organisation/:id?")
   .get(VerifyJWTToken, isSuperAdmin, validate(paramsIDSchema), getOrg)
   .post(VerifyJWTToken, isSuperAdmin, validate(createOrgSchema), createOrg);
 
-router.get("/organizations", VerifyJWTToken, isSuperAdmin, getOrgs);
+router.get("/organisations", VerifyJWTToken, isSuperAdmin, getOrgs);
 
 export default router;

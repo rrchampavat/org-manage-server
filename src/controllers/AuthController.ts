@@ -5,6 +5,7 @@ import { Request, Response } from "express";
 import Database from "../db/dbConnection";
 import { ISuperAdmin } from "../models/interfaces";
 import { superAdminTokenMaxAge } from "../utils/constant";
+import sendEmail from "../utils/sendEmail";
 
 const tableName = "super_admins";
 
@@ -93,6 +94,15 @@ export default class AuthController {
       const insertValues = [name, email, hashedPassword];
 
       await promiseConnection.query(insertSQL, insertValues);
+
+      const emailContent = {
+        receiverEmails: [email],
+        receiverName: name,
+        subject: "Welcome to Organisations Management!",
+        text: `Hey ${name}, Thanks for joining with us as a SUPER ADMIN!`,
+      };
+
+      await sendEmail(emailContent);
 
       return res.status(201).json({
         "message": "Admin registered succesfully!",

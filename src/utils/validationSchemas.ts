@@ -85,10 +85,10 @@ export const createOrgSchema = z
       .object({
         name: z
           .string({
-            required_error: "Organization name is required!",
-            invalid_type_error: "Organization name must be a string!",
+            required_error: "Organisation name is required!",
+            invalid_type_error: "Organisation name must be a string!",
           })
-          .nonempty({ "message": "Organization name is required!" }),
+          .nonempty({ "message": "Organisation name is required!" }),
         country: z
           .string({
             required_error: "Country name is required!",

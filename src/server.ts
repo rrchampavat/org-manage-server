@@ -6,7 +6,7 @@ import helmet from "helmet";
 import { corsOption } from "./config/corsOprion";
 import authRoutes from "./routes/authRoutes";
 import superAdminRouter from "./routes/superAdminRoute";
-import orgRouter from "./routes/organizationRoutes";
+import orgRouter from "./routes/orgRoutes";
 import roleRouter from "./routes/roleRoutes";
 
 dotenv.config();

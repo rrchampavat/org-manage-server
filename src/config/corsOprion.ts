@@ -1,4 +1,5 @@
 import { CorsOptions, CorsOptionsDelegate } from "cors";
+
 import { whiteList } from "./allowedOrigins";
 
 export const corsOption: CorsOptions | CorsOptionsDelegate = {

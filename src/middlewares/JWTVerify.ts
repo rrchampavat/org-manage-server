@@ -1,10 +1,13 @@
 import { NextFunction, Response } from "express";
 import jwt, { JwtPayload } from "jsonwebtoken";
+
 import { CustomRequest } from "../utils/interfaces";
 import Database from "../db/dbConnection";
 import { ISuperAdmin } from "../models/interfaces";
 
-export const VerifyJWTToken = (
+const tableName = "super_admins";
+
+export const VerifyJWTToken = async (
   req: CustomRequest,
   res: Response,
   next: NextFunction
@@ -22,22 +25,19 @@ export const VerifyJWTToken = (
     req.id = decodedToken.id;
 
     const connection = Database.init();
+    const promiseConnection = connection.promise();
 
-    connection.query<ISuperAdmin[]>(
-      `SELECT * FROM super_admins WHERE sadmin_id =?`,
-      decodedToken.id,
-      async (queryErr, queryRes) => {
-        if (queryErr) {
-          return res
-            .status(Number(queryErr.code) || 500)
-            .json({ "message": queryErr.message });
-        }
+    const sql = `SELECT * FROM ${tableName} WHERE sadmin_id =?`;
+    const values = [decodedToken.id];
 
-        if (!queryRes.length) {
-          return res.status(404).json({ "message": "User not found!" });
-        }
-      }
+    const [rows]: [rows: ISuperAdmin] = await promiseConnection.query(
+      sql,
+      values
     );
+
+    if (!rows.length) {
+      return res.status(404).json({ "message": "User not found!" });
+    }
 
     return next();
   } catch (error: any) {

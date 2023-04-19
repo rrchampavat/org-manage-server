@@ -6,8 +6,7 @@ import Database from "../db/dbConnection";
 import { ISuperAdmin } from "../models/interfaces";
 import { superAdminTokenMaxAge } from "../utils/constant";
 import sendEmail from "../utils/sendEmail";
-
-const tableName = "super_admins";
+import { sAdminTableKeys, superAdminTableName } from "../db/utils";
 
 export default class AuthController {
   public async superAdminLogin(req: Request, res: Response) {
@@ -18,16 +17,24 @@ export default class AuthController {
 
       const promiseConnection = connection.promise();
 
-      const sql = `SELECT * FROM ${tableName} WHERE sadmin_email =?`;
+      const sql = `SELECT * FROM ${superAdminTableName} WHERE ${sAdminTableKeys.email} =?`;
 
       const [rows]: [rows: ISuperAdmin[]] = await promiseConnection.query(
         sql,
         email
       );
 
+      if (!rows.length) {
+        return res.status(404).json({ "message": "User not found!" });
+      }
+
       const user = rows[0];
 
-      const match = await bcrypt.compare(password, user["sadmin_password"]);
+      if (!user?.sadmin_is_active) {
+        return res.status(403).json({ "message": "User is not active!" });
+      }
+
+      const match = await bcrypt.compare(password, user?.sadmin_password);
 
       if (!match) {
         return res
@@ -66,17 +73,11 @@ export default class AuthController {
     try {
       const { name, email, password } = req.body;
 
-      if (!email || !name || !password) {
-        return res
-          .status(400)
-          .json({ "message": "Please fill up all the required fields !" });
-      }
-
       const connection = Database.init();
 
       const promiseConnection = connection.promise();
 
-      const getSQL = `SELECT * FROM ${tableName} WHERE sadmin_email =?`;
+      const getSQL = `SELECT * FROM ${superAdminTableName} WHERE ${sAdminTableKeys.email} =?`;
       const getValues = [email];
 
       const [getRows]: [getRows: ISuperAdmin[]] = await promiseConnection.query(
@@ -90,19 +91,19 @@ export default class AuthController {
 
       const hashedPassword = await bcrypt.hash(password, 10);
 
-      const insertSQL = `INSERT INTO ${tableName} (sadmin_name, sadmin_email, sadmin_password) VALUES (?,?,?)`;
+      const insertSQL = `INSERT INTO ${superAdminTableName} (${sAdminTableKeys.name}, ${sAdminTableKeys.email}, ${sAdminTableKeys.password}) VALUES (?,?,?)`;
       const insertValues = [name, email, hashedPassword];
 
       await promiseConnection.query(insertSQL, insertValues);
 
-      const emailContent = {
-        receiverEmails: [email],
-        receiverName: name,
-        subject: "Welcome to Organisations Management!",
-        text: `Hey ${name}, Thanks for joining with us as a SUPER ADMIN!`,
-      };
+      // const emailContent = {
+      //   receiverEmails: [email],
+      //   receiverName: name,
+      //   subject: "Welcome to Organisations Management!",
+      //   text: `Hey ${name}, Thanks for joining with us as a SUPER ADMIN!`,
+      // };
 
-      await sendEmail(emailContent);
+      // sendEmail(emailContent);
 
       return res.status(201).json({
         "message": "Admin registered succesfully!",

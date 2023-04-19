@@ -37,7 +37,7 @@ const sendEmail = async (data: IReceiverEmail) => {
       bcc: "work.rrchampavat@gmail.com",
       subject: subject,
       text: text,
-      html: html,
+      html: !text ? html : "",
     };
 
     await transporter.sendMail(mailContent);

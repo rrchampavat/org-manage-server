@@ -3,8 +3,7 @@ import { Response } from "express";
 import Database from "../db/dbConnection";
 import { CustomRequest } from "../utils/interfaces";
 import { ISuperAdmin } from "../models/interfaces";
-
-const tableName = "super_admins";
+import { sAdminTableKeys, superAdminTableName } from "../db/utils";
 
 export default class SAdminController {
   public async getSuperAdmin(req: CustomRequest, res: Response) {
@@ -16,7 +15,7 @@ export default class SAdminController {
 
       const promiseConnection = connection.promise();
 
-      const sql = `SELECT * FROM ${tableName} WHERE sadmin_id =?`;
+      const sql = `SELECT * FROM ${superAdminTableName} WHERE ${sAdminTableKeys.id} =?`;
       const values = [paramID ?? sAdminID];
 
       const [rows]: [rows: ISuperAdmin[]] = await promiseConnection.query(
@@ -31,8 +30,10 @@ export default class SAdminController {
       const user = rows[0];
 
       const super_admin = {
+        "id": user.sadmin_id,
         "name": user.sadmin_name,
         "email": user.sadmin_email,
+        "is_active": user.sadmin_is_active,
       };
 
       return res.status(200).json({
@@ -52,7 +53,7 @@ export default class SAdminController {
 
       const promiseConnection = connection.promise();
 
-      const sql = `SELECT * from ${tableName}`;
+      const sql = `SELECT * from ${superAdminTableName}`;
 
       const [rows]: [rows: ISuperAdmin[]] = await promiseConnection.query(sql);
 
@@ -60,6 +61,7 @@ export default class SAdminController {
         "id": sadmin.sadmin_id,
         "name": sadmin.sadmin_name,
         "email": sadmin.sadmin_email,
+        "is_active": sadmin.sadmin_is_active,
       }));
 
       return res.status(200).json({
@@ -82,7 +84,7 @@ export default class SAdminController {
 
       const promiseConnection = connection.promise();
 
-      const getSQL = `SELECT * FROM ${tableName} WHERE sadmin_id =?`;
+      const getSQL = `SELECT * FROM ${superAdminTableName} WHERE ${sAdminTableKeys.id} =?`;
       const getValues = [sAdminID];
 
       const [getRows]: [getRows: ISuperAdmin[]] = await promiseConnection.query(
@@ -94,7 +96,7 @@ export default class SAdminController {
         return res.status(400).json({ "message": "User does not exists!" });
       }
 
-      const updateQuery = `UPDATE ${tableName} SET sadmin_name =? WHERE sadmin_id =?`;
+      const updateQuery = `UPDATE ${superAdminTableName} SET ${sAdminTableKeys.name} =? WHERE ${sAdminTableKeys.id} =?`;
       const updateValues = [updatedName, sAdminID];
 
       await promiseConnection.query(updateQuery, updateValues);
@@ -109,8 +111,10 @@ export default class SAdminController {
       const user = getUpdatedRows[0];
 
       const super_admin = {
+        "id": user.sadmin_id,
         "name": user.sadmin_name,
         "email": user.sadmin_email,
+        "is_active": user.sadmin_is_active,
       };
 
       return res.status(201).json({

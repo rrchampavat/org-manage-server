@@ -2,21 +2,35 @@ import { Response } from "express";
 
 import { CustomRequest } from "../utils/interfaces";
 import Database from "../db/dbConnection";
-import { IOrganisation } from "../models/interfaces";
+import { IOrganisation, IRole } from "../models/interfaces";
 import sendEmail from "../utils/sendEmail";
-
-const tableName = "organisations";
+import { ResultSetHeader } from "mysql2";
+import {
+  orgTableKeys,
+  orgTableName,
+  roleTableKeys,
+  roleTableName,
+  userTableKeys,
+  userTableName,
+} from "../db/utils";
+import { hash } from "bcryptjs";
 
 export const createOrg = async (req: CustomRequest, res: Response) => {
   try {
     const { id: SAdminID, body } = req;
-    const { name: orgName, country, prmEmail, scdEmail } = body;
+    const {
+      name: orgName,
+      country,
+      prmEmail,
+      scdEmail,
+      established_date,
+    } = body;
 
     const connection = Database.init();
 
     const promiseConnection = connection.promise();
 
-    const searchSQL = `SELECT * FROM ${tableName} WHERE org_name =?`;
+    const searchSQL = `SELECT * FROM ${orgTableName} WHERE ${orgTableKeys.name} =?`;
     const getOrgValues = [orgName];
 
     const [getOrgRows]: [getOrgRows: IOrganisation[]] =
@@ -28,29 +42,70 @@ export const createOrg = async (req: CustomRequest, res: Response) => {
         .json({ "message": "Organisation name is already taken!" });
     }
 
-    const insertSQL = `INSERT INTO ${tableName} (org_name, org_country, org_is_active, org_prm_email, org_scd_email, org_created_by) VALUES (?,?,?,?,?,?)`;
-    const insertValues = [orgName, country, true, prmEmail, scdEmail, SAdminID];
+    const orgInsertSQL = `INSERT INTO ${orgTableName} (${orgTableKeys.name}, ${orgTableKeys.country},${orgTableKeys.prm_email}, ${orgTableKeys.scd_email}, ${orgTableKeys.created_by}, ${orgTableKeys.establish_date}) VALUES (?,?,?,?,?,?)`;
+    const orgInsertValues = [
+      orgName,
+      country,
+      prmEmail,
+      scdEmail,
+      SAdminID,
+      new Date(established_date),
+    ];
 
-    const [rows]: [rows: IOrganisation[]] = await promiseConnection.query(
-      insertSQL,
-      insertValues
+    const [orgRows]: [orgRows: ResultSetHeader] = await promiseConnection.query(
+      orgInsertSQL,
+      orgInsertValues
     );
 
-    const emailContent = {
-      receiverEmails: [prmEmail, scdEmail],
-      subject: "Welcome to Organisations Management!",
-      html: `<p>Congratulations, You've been added as an admin in the <b><i>${orgName}</i></b> organisation! 
-            </br></br> Regards, 
-            </br> ORG Management Team</p>`,
-    };
+    const orgID = orgRows.insertId;
 
-    await sendEmail(emailContent);
+    const getRolesSQL = `SELECT * FROM ${roleTableName} WHERE ${roleTableKeys.id} =? AND ${roleTableKeys.name} = 'Admin'`;
+    const getRoleValues = [orgID];
 
-    const newOrg = rows[0];
+    const [roles]: [roles: IRole[]] = await promiseConnection.query(
+      getRolesSQL,
+      getRoleValues
+    );
+
+    let roleID = roles?.[0]?.role_id;
+
+    if (!roles?.length) {
+      const insertRoleSQL = `INSERT INTO ${roleTableName} (${roleTableKeys.name}, ${roleTableKeys.org_id}) VALUES (?,?)`;
+      const insertRoleValues = ["Admin", orgID];
+
+      const [role]: [role: ResultSetHeader] = await promiseConnection.query(
+        insertRoleSQL,
+        insertRoleValues
+      );
+
+      roleID = role.insertId;
+    }
+
+    const prmHashedPassword = await hash(prmEmail, 10);
+    const scdHashedPassword = await hash(scdEmail, 10);
+
+    const userInsetSQL = `INSERT INTO ${userTableName} (${userTableKeys.email}, ${userTableKeys.password}, ${userTableKeys.org_id}, ${userTableKeys.role_id}) VALUES ?`;
+    const userInsertValues = [
+      [
+        [prmEmail, prmHashedPassword, orgID, roleID],
+        [scdEmail, scdHashedPassword, orgID, roleID],
+      ],
+    ];
+
+    await promiseConnection.query(userInsetSQL, userInsertValues);
+
+    // const emailContent = {
+    //   receiverEmails: [prmEmail, scdEmail],
+    //   subject: "Welcome to Organisations Management!",
+    //   html: `<p>Congratulations, You've been added as an admin in the <b><i>${orgName}</i></b> organisation!
+    //         </br></br> Regards,
+    //         </br> ORG Management Team</p>`,
+    // };
+
+    // sendEmail(emailContent);
 
     return res.status(201).json({
       "message": "Organisation created successfully!",
-      "data": newOrg,
     });
   } catch (error: any) {
     return res
@@ -65,7 +120,7 @@ export const getOrgs = async (_req: CustomRequest, res: Response) => {
 
     const promiseConnection = connection.promise();
 
-    const getSQL = `SELECT * FROM ${tableName}`;
+    const getSQL = `SELECT * FROM ${orgTableName}`;
 
     const [rows]: [rows: IOrganisation[]] = await promiseConnection.query(
       getSQL
@@ -89,7 +144,7 @@ export const getOrg = async (req: CustomRequest, res: Response) => {
 
     const promiseConnection = connection.promise();
 
-    const getSQL = `SELECT * FROM ${tableName} WHERE org_id =?`;
+    const getSQL = `SELECT * FROM ${orgTableName} WHERE ${orgTableKeys.id} =?`;
     const getValues = [id];
 
     const [rows]: [rows: IOrganisation[]] = await promiseConnection.query(
@@ -109,6 +164,6 @@ export const getOrg = async (req: CustomRequest, res: Response) => {
   } catch (error: any) {
     return res
       .status(Number(error.code) || 500)
-      .json({ "message": error.code });
+      .json({ "message": error.message });
   }
 };

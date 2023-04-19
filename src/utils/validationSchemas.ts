@@ -87,21 +87,24 @@ export const createOrgSchema = z.object({
           required_error: "Organisation name is required!",
           invalid_type_error: "Organisation name must be a string!",
         })
-        .nonempty({ "message": "Organisation name is required!" }),
+        .nonempty({ message: "Organisation name is required!" }),
       country: z
         .string({
           required_error: "Country name is required!",
           invalid_type_error: "Country name must be a string!",
         })
-        .nonempty({ "message": "Country name is required!" }),
+        .nonempty({ message: "Country name is required!" }),
       prmEmail: z
         .string({ required_error: "Primary email is required!" })
         .email("Please provide valid primary email!")
-        .nonempty({ "message": "Primary email is required!" }),
+        .nonempty({ message: "Primary email is required!" }),
       scdEmail: z
         .string({ required_error: "Secondary email is required!" })
         .email("Please provide valid secondary email!")
-        .nonempty({ "message": "Secondary email is required!" }),
+        .nonempty({ message: "Secondary email is required!" }),
+      established_date: z.preprocess((arg) => {
+        if (typeof arg == "string" || arg instanceof Date) return new Date(arg);
+      }, z.date({ required_error: "Establised date is required!" })),
     })
     .strict()
     .refine((data) => data.prmEmail !== data.scdEmail, {

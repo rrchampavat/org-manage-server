@@ -18,12 +18,15 @@ export default class Database {
   static init(): Pool {
     return createPool({
       host: process.env.DB_HOST,
-      user: process.env.DB_USER,
+      user: process.env.DB_DEV_USER,
       database: process.env.DB_NAME,
-      password: process.env.DB_PASSWORD,
+      password: process.env.DB_DEV_PASSWORD,
       waitForConnections: true,
       connectionLimit: 10,
       queueLimit: 0,
+      ssl: {
+        rejectUnauthorized: true,
+      },
     });
   }
 }

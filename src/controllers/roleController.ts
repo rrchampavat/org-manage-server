@@ -2,7 +2,7 @@ import { Response } from "express";
 
 import { CustomRequest } from "../utils/interfaces";
 import Database from "../db/dbConnection";
-import { IRole } from "../models/interfaces";
+import { Role } from "../types";
 
 const tableName = "roles";
 
@@ -17,7 +17,7 @@ export const createRole = async (req: CustomRequest, res: Response) => {
     const getSQL = `SELECT * FROM ${tableName} WHERE role_name =?`;
     const getValues = [roleName];
 
-    const [rows]: [rows: IRole[]] = await promiseConnection.query(
+    const [rows]: [rows: Role[]] = await promiseConnection.query(
       getSQL,
       getValues
     );
@@ -46,7 +46,7 @@ export const getRoles = async (_req: CustomRequest, res: Response) => {
 
     const sql = `SELECT * FROM ${tableName}`;
 
-    const [rows]: [rows: IRole[]] = await promiseConnection.query(sql);
+    const [rows]: [rows: Role[]] = await promiseConnection.query(sql);
 
     return res
       .status(200)
@@ -68,7 +68,7 @@ export const getRole = async (req: CustomRequest, res: Response) => {
     const sql = `SELECT * FROM ${tableName} WHERE role_id =?`;
     const values = [id];
 
-    const [rows]: [rows: IRole[]] = await promiseConnection.query(sql, values);
+    const [rows]: [rows: Role[]] = await promiseConnection.query(sql, values);
 
     if (!rows.length) {
       return res.status(404).json({ "message": "Role not found!" });
@@ -97,7 +97,7 @@ export const updateRole = async (req: CustomRequest, res: Response) => {
     const getSQL = `SELECT * FROM ${tableName} WHERE role_id =?`;
     const getValues = [id];
 
-    const [rows]: [rows: IRole[]] = await promiseConnection.query(
+    const [rows]: [rows: Role[]] = await promiseConnection.query(
       getSQL,
       getValues
     );
@@ -111,7 +111,7 @@ export const updateRole = async (req: CustomRequest, res: Response) => {
 
     await promiseConnection.query(updateSQL, updateValues);
 
-    const [updatedRows]: [updatedRows: IRole[]] = await promiseConnection.query(
+    const [updatedRows]: [updatedRows: Role[]] = await promiseConnection.query(
       getSQL,
       getValues
     );

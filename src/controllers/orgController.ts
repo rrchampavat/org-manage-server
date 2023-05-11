@@ -2,7 +2,6 @@ import { Response } from "express";
 
 import { CustomRequest } from "../utils/interfaces";
 import Database from "../db/dbConnection";
-import { IOrganisation, IRole } from "../models/interfaces";
 import sendEmail from "../utils/sendEmail";
 import { ResultSetHeader } from "mysql2";
 import {
@@ -14,6 +13,7 @@ import {
   userTableName,
 } from "../db/utils";
 import { hash } from "bcryptjs";
+import { Organisation, Role } from "../types";
 
 export const createOrg = async (req: CustomRequest, res: Response) => {
   try {
@@ -33,7 +33,7 @@ export const createOrg = async (req: CustomRequest, res: Response) => {
     const searchSQL = `SELECT * FROM ${orgTableName} WHERE ${orgTableKeys.name} =?`;
     const getOrgValues = [orgName];
 
-    const [getOrgRows]: [getOrgRows: IOrganisation[]] =
+    const [getOrgRows]: [getOrgRows: Organisation[]] =
       await promiseConnection.query(searchSQL, getOrgValues);
 
     if (getOrgRows?.length) {
@@ -62,7 +62,7 @@ export const createOrg = async (req: CustomRequest, res: Response) => {
     const getRolesSQL = `SELECT * FROM ${roleTableName} WHERE ${roleTableKeys.id} =? AND ${roleTableKeys.name} = 'Admin'`;
     const getRoleValues = [orgID];
 
-    const [roles]: [roles: IRole[]] = await promiseConnection.query(
+    const [roles]: [roles: Role[]] = await promiseConnection.query(
       getRolesSQL,
       getRoleValues
     );
@@ -122,7 +122,7 @@ export const getOrgs = async (_req: CustomRequest, res: Response) => {
 
     const getSQL = `SELECT * FROM ${orgTableName}`;
 
-    const [rows]: [rows: IOrganisation[]] = await promiseConnection.query(
+    const [rows]: [rows: Organisation[]] = await promiseConnection.query(
       getSQL
     );
 
@@ -147,7 +147,7 @@ export const getOrg = async (req: CustomRequest, res: Response) => {
     const getSQL = `SELECT * FROM ${orgTableName} WHERE ${orgTableKeys.id} =?`;
     const getValues = [id];
 
-    const [rows]: [rows: IOrganisation[]] = await promiseConnection.query(
+    const [rows]: [rows: Organisation[]] = await promiseConnection.query(
       getSQL,
       getValues
     );

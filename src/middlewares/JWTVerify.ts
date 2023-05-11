@@ -3,7 +3,7 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 
 import { CustomRequest } from "../utils/interfaces";
 import Database from "../db/dbConnection";
-import { ISuperAdmin } from "../models/interfaces";
+import { SuperAdmin } from "../types";
 
 const tableName = "super_admins";
 
@@ -30,7 +30,7 @@ export const VerifyJWTToken = async (
     const sql = `SELECT * FROM ${tableName} WHERE sadmin_id =?`;
     const values = [decodedToken.id];
 
-    const [rows]: [rows: ISuperAdmin] = await promiseConnection.query(
+    const [rows]: [rows: SuperAdmin] = await promiseConnection.query(
       sql,
       values
     );

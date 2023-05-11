@@ -2,8 +2,8 @@ import { Response } from "express";
 
 import Database from "../db/dbConnection";
 import { CustomRequest } from "../utils/interfaces";
-import { ISuperAdmin } from "../models/interfaces";
 import { sAdminTableKeys, superAdminTableName } from "../db/utils";
+import { SuperAdmin } from "../types";
 
 export default class SAdminController {
   public async getSuperAdmin(req: CustomRequest, res: Response) {
@@ -18,7 +18,7 @@ export default class SAdminController {
       const sql = `SELECT * FROM ${superAdminTableName} WHERE ${sAdminTableKeys.id} =?`;
       const values = [paramID ?? sAdminID];
 
-      const [rows]: [rows: ISuperAdmin[]] = await promiseConnection.query(
+      const [rows]: [rows: SuperAdmin[]] = await promiseConnection.query(
         sql,
         values
       );
@@ -55,9 +55,9 @@ export default class SAdminController {
 
       const sql = `SELECT * from ${superAdminTableName}`;
 
-      const [rows]: [rows: ISuperAdmin[]] = await promiseConnection.query(sql);
+      const [rows]: [rows: SuperAdmin[]] = await promiseConnection.query(sql);
 
-      const super_admins = rows?.map((sadmin: ISuperAdmin) => ({
+      const super_admins = rows?.map((sadmin: SuperAdmin) => ({
         "id": sadmin.sadmin_id,
         "name": sadmin.sadmin_name,
         "email": sadmin.sadmin_email,
@@ -87,7 +87,7 @@ export default class SAdminController {
       const getSQL = `SELECT * FROM ${superAdminTableName} WHERE ${sAdminTableKeys.id} =?`;
       const getValues = [sAdminID];
 
-      const [getRows]: [getRows: ISuperAdmin[]] = await promiseConnection.query(
+      const [getRows]: [getRows: SuperAdmin[]] = await promiseConnection.query(
         getSQL,
         getValues
       );
@@ -101,7 +101,7 @@ export default class SAdminController {
 
       await promiseConnection.query(updateQuery, updateValues);
 
-      const [getUpdatedRows]: [getUpdatedRows: ISuperAdmin[]] =
+      const [getUpdatedRows]: [getUpdatedRows: SuperAdmin[]] =
         await promiseConnection.query(getSQL, getValues);
 
       if (!getUpdatedRows.length) {

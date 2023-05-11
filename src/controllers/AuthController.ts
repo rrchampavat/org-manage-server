@@ -3,10 +3,21 @@ import jwt from "jsonwebtoken";
 import { Request, Response } from "express";
 
 import Database from "../db/dbConnection";
-import { ISuperAdmin } from "../models/interfaces";
 import { superAdminTokenMaxAge } from "../utils/constant";
 import sendEmail from "../utils/sendEmail";
-import { sAdminTableKeys, superAdminTableName } from "../db/utils";
+import {
+  locationTableKeys,
+  locationTableName,
+  orgTableKeys,
+  orgTableName,
+  roleTableKeys,
+  roleTableName,
+  sAdminTableKeys,
+  superAdminTableName,
+  userTableKeys,
+  userTableName,
+} from "../db/utils";
+import { Organisation, Role, SuperAdmin, User, Location } from "../types";
 
 export default class AuthController {
   public async superAdminLogin(req: Request, res: Response) {
@@ -19,7 +30,7 @@ export default class AuthController {
 
       const sql = `SELECT * FROM ${superAdminTableName} WHERE ${sAdminTableKeys.email} =?`;
 
-      const [rows]: [rows: ISuperAdmin[]] = await promiseConnection.query(
+      const [rows]: [rows: SuperAdmin[]] = await promiseConnection.query(
         sql,
         email
       );
@@ -80,7 +91,7 @@ export default class AuthController {
       const getSQL = `SELECT * FROM ${superAdminTableName} WHERE ${sAdminTableKeys.email} =?`;
       const getValues = [email];
 
-      const [getRows]: [getRows: ISuperAdmin[]] = await promiseConnection.query(
+      const [getRows]: [getRows: SuperAdmin[]] = await promiseConnection.query(
         getSQL,
         getValues
       );
@@ -120,6 +131,100 @@ export default class AuthController {
       res.clearCookie("jwt");
 
       return res.status(200).json({ "messasge": "Logged out successfully!" });
+    } catch (error: any) {
+      return res
+        .status(Number(error.code) || 500)
+        .json({ "message": error.message });
+    }
+  }
+
+  public async usersRegister(req: Request, res: Response) {
+    try {
+      const {
+        first_name,
+        last_name,
+        email,
+        password,
+        image,
+        contact,
+        org_id,
+        role_id,
+        joining_date,
+        location_id,
+        // address_id,
+      } = req.body;
+
+      const connection = Database.init();
+      const promiseConnection = connection.promise();
+
+      const getUserSQL = `SELECT * FROM ${userTableName} WHERE ${userTableKeys.email} =? OR ${userTableKeys.contact} =?`;
+      const getUserValues = [email, contact];
+
+      const [users]: [users: User[]] = await promiseConnection.query(
+        getUserSQL,
+        getUserValues
+      );
+
+      if (users?.length) {
+        return res
+          .status(400)
+          .json({ "message": "Email or contact number already in use!" });
+      }
+
+      const getOrgSQL = `SELECT * FROM ${orgTableName} WHERE ${orgTableKeys.id} =?`;
+      const getOrgValues = [org_id];
+
+      const [orgs]: [orgs: Organisation[]] = await promiseConnection.query(
+        getOrgSQL,
+        getOrgValues
+      );
+
+      if (!orgs.length) {
+        return res.status(404).json({ "message": "Organisations not found!" });
+      }
+
+      const getRoleSQL = `SELECT * FROM ${roleTableName} WHERE ${roleTableKeys.org_id} =? AND ${roleTableKeys.id} =?`;
+      const getRoleValues = [org_id, role_id];
+
+      const [roles]: [roles: Role[]] = await promiseConnection.query(
+        getRoleSQL,
+        getRoleValues
+      );
+
+      if (!roles.length) {
+        return res.status(404).json({ "message": "Role not found!" });
+      }
+
+      const getLocationSQL = `SELECT * FROM ${locationTableName} WHERE ${locationTableKeys.id} =?`;
+      const getLocationValues = [location_id];
+
+      const [locations]: [locations: Location[]] =
+        await promiseConnection.query(getLocationSQL, getLocationValues);
+
+      if (!locations.length) {
+        return res.status(404).json({ "message": "Location not found!" });
+      }
+
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      const insertUserSQL = `INSERT INTO ${userTableName} (${userTableKeys.first_name}, ${userTableKeys.last_name}, ${userTableKeys.email}, ${userTableKeys.image},${userTableKeys.password}, ${userTableKeys.contact}, ${userTableKeys.org_id},${userTableKeys.role_id}, ${userTableKeys.joining_date}, ${userTableKeys.location_id}) VALUES (?,?,?,?,?,?,?,?,?,?)`;
+      const insertValues = [
+        first_name,
+        last_name,
+        email,
+        image,
+        hashedPassword,
+        contact,
+        org_id,
+        role_id,
+        new Date(joining_date),
+        location_id,
+        // address_id,
+      ];
+
+      await promiseConnection.query(insertUserSQL, insertValues);
+
+      return res.status(201).json({ "message": "User created successfully!" });
     } catch (error: any) {
       return res
         .status(Number(error.code) || 500)

@@ -3,7 +3,7 @@ import { Response } from "express";
 import Database from "../db/dbConnection";
 import { CustomRequest } from "../utils/interfaces";
 import { sAdminTableKeys, superAdminTableName } from "../db/utils";
-import { SuperAdmin } from "./types";
+import { SuperAdmin } from "../types";
 
 export default class SAdminController {
   public async getSuperAdmin(req: CustomRequest, res: Response) {

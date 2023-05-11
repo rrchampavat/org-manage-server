@@ -17,7 +17,7 @@ import {
   userTableKeys,
   userTableName,
 } from "../db/utils";
-import { Organisation, Role, SuperAdmin, User } from "./types";
+import { Organisation, Role, SuperAdmin, User, Location } from "../types";
 
 export default class AuthController {
   public async superAdminLogin(req: Request, res: Response) {

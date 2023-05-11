@@ -13,7 +13,7 @@ import {
   userTableName,
 } from "../db/utils";
 import { hash } from "bcryptjs";
-import { Organisation, Role } from "./types";
+import { Organisation, Role } from "../types";
 
 export const createOrg = async (req: CustomRequest, res: Response) => {
   try {

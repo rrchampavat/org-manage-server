@@ -2,7 +2,7 @@ import { Response } from "express";
 
 import { CustomRequest } from "../utils/interfaces";
 import Database from "../db/dbConnection";
-import { Role } from "./types";
+import { Role } from "../types";
 
 const tableName = "roles";
 

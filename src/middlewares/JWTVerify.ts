@@ -3,7 +3,7 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 
 import { CustomRequest } from "../utils/interfaces";
 import Database from "../db/dbConnection";
-import { SuperAdmin } from "../../types";
+import { SuperAdmin } from "../types";
 
 const tableName = "super_admins";
 

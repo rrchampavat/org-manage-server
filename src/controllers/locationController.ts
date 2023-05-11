@@ -7,7 +7,7 @@ import {
   orgTableName,
 } from "../db/utils";
 import { ResultSetHeader } from "mysql2";
-import { Location, Organisation } from "./types";
+import { Location, Organisation } from "../types";
 
 export const addLocation = async (req: Request, res: Response) => {
   try {

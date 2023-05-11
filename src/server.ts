@@ -8,6 +8,7 @@ import authRoutes from "./routes/authRoutes";
 import superAdminRouter from "./routes/superAdminRoute";
 import orgRouter from "./routes/orgRoutes";
 import roleRouter from "./routes/roleRoutes";
+import locationRouter from "./routes/locationRoutes";
 
 dotenv.config();
 
@@ -32,8 +33,7 @@ app.get("/api/server", (_: Request, res: Response) =>
 );
 
 app.use("/api/v1/auth", authRoutes);
-app.use("/api/v1/", superAdminRouter, orgRouter, roleRouter);
-// app.use("/api/v1/", orgRouter);
+app.use("/api/v1/", superAdminRouter, orgRouter, roleRouter, locationRouter);
 
 app.use("*", (_req: Request, res: Response) => {
   res.status(400).json({ "message": "Invalid request URL!" });

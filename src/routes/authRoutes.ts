@@ -25,4 +25,6 @@ router.post(
 
 router.post("/admin/logout", authControllerOBJ.logout);
 
+router.post("/register", authControllerOBJ.usersRegister);
+
 export default router;

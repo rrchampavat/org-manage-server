@@ -2,6 +2,7 @@ export const orgTableName = "organisations";
 export const userTableName = "users";
 export const roleTableName = "roles";
 export const superAdminTableName = "super_admins";
+export const locationTableName = "locations";
 
 export const orgTableKeys = {
   id: "org_id",
@@ -44,4 +45,14 @@ export const userTableKeys = {
   joining_date: "user_joining_date",
   location_id: "user_location_id",
   address_id: "user_address_id",
+};
+
+export const locationTableKeys = {
+  id: "location_id",
+  city: "location_city",
+  state: "location_state",
+  country: "location_country",
+  pin: "location_pin",
+  org_id: "location_org_id",
+  area: "location_area",
 };

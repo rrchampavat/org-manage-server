@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 
 import Database from "../db/dbConnection";
 import { superAdminTokenMaxAge } from "../utils/constant";
@@ -18,9 +18,14 @@ import {
   userTableName,
 } from "../db/utils";
 import { Organisation, Role, SuperAdmin, User, Location } from "../types";
+import { Api404Error } from "../utils/ErrorHandling/api404Error";
 
 export default class AuthController {
-  public async superAdminLogin(req: Request, res: Response) {
+  public async superAdminLogin(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
     try {
       const { email, password } = req.body;
 
@@ -36,7 +41,7 @@ export default class AuthController {
       );
 
       if (!rows.length) {
-        return res.status(404).json({ "message": "User not found!" });
+        throw new Api404Error(`User with email: ${email} not found!`);
       }
 
       const user = rows[0];
@@ -74,9 +79,10 @@ export default class AuthController {
           })
       );
     } catch (error: any) {
-      return res
-        .status(Number(error.code) || 500)
-        .json({ "message": error.message });
+      next(error);
+      // return res
+      //   .status(Number(error.code) || 500)
+      //   .json({ "message": error.message });
     }
   }
 

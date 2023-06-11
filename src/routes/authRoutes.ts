@@ -6,6 +6,7 @@ import {
   superAdminLoginSchema,
   superAdminRegisterSchema,
 } from "../utils/validationSchemas";
+import { logErrorMiddleware, returnError } from "../middlewares/Errors";
 
 const router = Router();
 
@@ -14,7 +15,9 @@ const authControllerOBJ = new AuthController();
 router.post(
   "/admin/login",
   validate(superAdminLoginSchema),
-  authControllerOBJ.superAdminLogin
+  authControllerOBJ.superAdminLogin,
+  logErrorMiddleware,
+  returnError
 );
 
 router.post(
